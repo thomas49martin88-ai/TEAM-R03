@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+
+    <script>
+        const CONFIG_DEFAUT = {
+            titre: "Brief ÉLECTRICITÉ / PLOMBERIE R03",
+            dateComplete: "12 Avril 2026",    
+            semaine: "15",                   
+            ca: "104 250 €",                 
+            evolution: "+5.6%",              
+            priorite: "Focus sur le traitement de l'eau et relance devis.", 
+            
+            // TOP 3 (Vert)
+            tops: [
+                {name: "Traitement de l'eau", evo: "+150%"},
+                {name: "Domotique", evo: "+42%"},
+                {name: "Equipement W.C", evo: "+28%"}
+            ],
+            
+            // BOOSTER / FLOP (Rouge)
+            flops: [
+                {name: "Raccordement Gaz", evo: "-18%"},
+                {name: "Gaines et Cables", evo: "-12%"},
+                {name: "gaine&cable", evo: "-8%"}
+            ],
+            
+            // ÉQUIPE (Nom, L&M, L&M+, PRO, RT/F)
+            equipe: [
+                {name: "YANN", lm: "8", lmp: "6", pro: "1", rtf: "2"},
+                {name: "PATRICE", lm: "5", lmp: "7", pro: "0", rtf: "4"},
+                {name: "GUILLAUME", lm: "4", lmp: "4", pro: "0", rtf: "1"}
+            ]
+        };
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Brief R03</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg: #f0f4f8; --card-bg: #ffffff; --top-color: #84cc16; --rafa-color: #ef4444; --navy: #1e3a5f; --text: #1e293b; --radius: 18px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); padding-bottom: 30px; color: var(--text); display: flex; flex-direction: column; align-items: center; }
+        .main-wrapper { width: 100%; max-width: 450px; padding: 8px; }
+        [contenteditable="true"] { outline: none; border-radius: 4px; transition: 0.2s; }
+        [contenteditable="true"]:focus { background: rgba(0,0,0,0.05); box-shadow: 0 0 0 2px #cbd5e1; }
+        
+        .header-a { background: var(--navy); color: white; padding: 10px 15px; border-radius: 0 0 15px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .header-a h1 { font-size: 13px; text-transform: uppercase; font-weight: 900; }
+        
+        .card-mini { background: var(--card-bg); border-radius: var(--radius); box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 8px; padding: 10px; text-align: center; }
+        .ca-amount { font-size: 26px; font-weight: 900; color: var(--navy); margin: 2px 0; }
+        .ca-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; }
+        .badge-up { background: #e2fbe8; color: #22c55e; }
+        .badge-down { background: #fee2e2; color: #ef4444; }
+        
+        .perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+        .perf-card { background: white; border-radius: 15px; padding: 10px; border-top: 5px solid; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .perf-card.top { border-top-color: var(--top-color); }
+        .perf-card.rafa { border-top-color: var(--rafa-color); }
+        .perf-title { font-size: 9px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; opacity: 0.6; }
+        .prod-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+        .prod-name { font-size: 10px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%; }
+        .prod-evo { font-size: 10px; font-weight: 800; min-width: 45px; text-align: right; }
+        
+        .section-h { background: var(--navy); color: white; padding: 8px 15px; font-size: 11px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0; }
+        .card { background: white; border-radius: 15px; margin-bottom: 8px; overflow: hidden; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
+        th { padding: 8px; font-size: 9px; color: #64748b; text-transform: uppercase; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; font-weight: 700; } /* Chiffres en gras ici */
+        .td-name { text-align: left; font-weight: 800; color: var(--navy); text-transform: uppercase; }
+        
+        #modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; background: white; z-index: 1000; border-radius: 20px; padding: 20px; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+        .db-item { padding: 12px; border-bottom: 1px solid #eee; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .reset-btn { margin-top: 15px; font-size: 10px; color: #94a3b8; cursor: pointer; border: none; background: none; text-decoration: underline; }
+    </style>
+</head>
+<body oninput="saveData()">
+
+    <div class="main-wrapper">
+        <header class="header-a">
+            <h1 id="ui-title" contenteditable="true">---</h1>
+            <div style="text-align:right">
+                <p id="ui-date" contenteditable="true" style="font-size:11px; font-weight:bold">---</p>
+                <p style="opacity:0.7; font-size:9px">Semaine <span id="ui-week" contenteditable="true">--</span></p>
+            </div>
+        </header>
+
+        <div class="card-mini">
+            <div contenteditable="true" style="font-size:9px; font-weight:800; opacity:0.6; text-transform: uppercase;">CA SEMAINE PRÉCÉDENTE</div>
+            <div class="ca-amount" contenteditable="true" id="main-ca">0 €</div>
+            <div id="main-badge" class="ca-badge badge-up" onclick="toggleBadge(); saveData();">
+                <i id="badge-icon" class="fas fa-arrow-up"></i>
+                <span contenteditable="true" id="main-evo">+0%</span>
+            </div>
+        </div>
+
+        <div class="perf-grid">
+            <div class="perf-card top">
+                <div class="perf-title">Performantes</div>
+                <div id="list-top"></div>
+            </div>
+            <div class="perf-card rafa">
+                <div class="perf-title">À surveiller</div>
+                <div id="list-rafa"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-h" contenteditable="true">PRIORITÉS & INFO DE LA SEMAINE</div>
+            <div id="ui-priority" class="info-body" contenteditable="true" style="padding:12px; font-size:12px; min-height:40px; line-height:1.4;">---</div>
+        </div>
+
+        <div class="card">
+            <div class="section-h">
+                <span>SUIVI CM</span>
+                <div>
+                    <i class="fas fa-user-plus" onclick="openCollabModal()" style="cursor:pointer; margin-right:12px"></i>
+                    <i class="fas fa-minus-circle" onclick="removeLastCollab()" style="cursor:pointer"></i>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">NOM</th>
+                        <th style="color:#84cc16;">L&M</th>
+                        <th style="color:#15803d;">L&M+</th>
+                        <th style="color:#ea580c;">PRO</th>
+                        <th style="color:#1e3a5f;">RT/F</th>
+                    </tr>
+                </thead>
+                <tbody id="ui-collabs"></tbody>
+            </table>
+        </div>
+
+        <center><button class="reset-btn" onclick="resetMemory()">Réinitialiser avec la config haut de page</button></center>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
+    <div id="modal">
+        <h3 id="modal-title" style="margin-bottom:15px; font-size:14px; color:var(--navy)">Choisir</h3>
+        <div id="db-list" style="max-height:300px; overflow-y:auto;"></div>
+        <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:12px; border:none; border-radius:12px; background:#f1f5f9; font-weight:bold;">Fermer</button>
+    </div>
+
+    <script>
+        const productDB = ["Traitement de l'eau", "Gestion Des Acces", "Son, Image et Communication", "Alimentation", "Equipement W.c.", "Gaines et Cables", "Evacuation", "Equipement de Distribution", "Domotique et Sécurité", "Alim Électrique au Quotidien", "Raccordement Gaz", "Interrupteurs et Prises"];
+        const namesDB = ["Patrice", "Yann", "Guillaume", "Yassine", "Thomas", "Lou", "Fateh"];
+
+        let slots = [];
+        let activeCollabs = [];
+
+        function initApp() {
+            const saved = localStorage.getItem('briefDataV5');
+            if (saved) {
+                applyToUI(JSON.parse(saved));
+            } else {
+                resetToDefault();
+            }
+        }
+
+        function resetToDefault() {
+            applyToUI({
+                headerTitle: CONFIG_DEFAUT.titre,
+                date: CONFIG_DEFAUT.dateComplete,
+                week: CONFIG_DEFAUT.semaine,
+                ca: CONFIG_DEFAUT.ca,
+                evo: CONFIG_DEFAUT.evolution,
+                priority: CONFIG_DEFAUT.priorite,
+                slots: [...CONFIG_DEFAUT.tops, ...CONFIG_DEFAUT.flops],
+                activeCollabs: CONFIG_DEFAUT.equipe,
+                badgeClass: CONFIG_DEFAUT.evolution.includes('-') ? "ca-badge badge-down" : "ca-badge badge-up"
+            });
+            saveData();
+        }
+
+        function applyToUI(data) {
+            document.getElementById('ui-title').innerText = data.headerTitle;
+            document.getElementById('ui-date').innerText = data.date;
+            document.getElementById('ui-week').innerText = data.week;
+            document.getElementById('main-ca').innerText = data.ca;
+            document.getElementById('main-evo').innerText = data.evo;
+            document.getElementById('ui-priority').innerText = data.priority;
+            document.getElementById('main-badge').className = data.badgeClass;
+            document.getElementById('badge-icon').className = data.badgeClass.includes('up') ? "fas fa-arrow-up" : "fas fa-arrow-down";
+            slots = data.slots;
+            activeCollabs = data.activeCollabs;
+            renderLists();
+        }
+
+        function saveData() {
+            const data = {
+                headerTitle: document.getElementById('ui-title').innerText,
+                date: document.getElementById('ui-date').innerText,
+                week: document.getElementById('ui-week').innerText,
+                ca: document.getElementById('main-ca').innerText,
+                evo: document.getElementById('main-evo').innerText,
+                priority: document.getElementById('ui-priority').innerText,
+                badgeClass: document.getElementById('main-badge').className,
+                slots: slots,
+                activeCollabs: activeCollabs
+            };
+            localStorage.setItem('briefDataV5', JSON.stringify(data));
+        }
+
+        function renderLists() {
+            document.getElementById('list-top').innerHTML = slots.slice(0,3).map((s, i) => `
+                <div class="prod-row">
+                    <span class="prod-name" onclick="openProductModal(${i})">${s.name}</span>
+                    <span class="prod-evo" contenteditable="true" style="color:#22c55e" oninput="slots[${i}].evo=this.innerText; saveData()">${s.evo}</span>
+                </div>`).join('');
+
+            document.getElementById('list-rafa').innerHTML = slots.slice(3,6).map((s, i) => `
+                <div class="prod-row">
+                    <span class="prod-name" onclick="openProductModal(${i+3})">${s.name}</span>
+                    <span class="prod-evo" contenteditable="true" style="color:#ef4444" oninput="slots[${i+3}].evo=this.innerText; saveData()">${s.evo}</span>
+                </div>`).join('');
+
+            document.getElementById('ui-collabs').innerHTML = activeCollabs.map((c, i) => `
+                <tr>
+                    <td class="td-name" contenteditable="true" oninput="activeCollabs[${i}].name=this.innerText; saveData()">${c.name}</td>
+                    <td contenteditable="true" style="color:#84cc16;" oninput="activeCollabs[${i}].lm=this.innerText; saveData()">${c.lm}</td>
+                    <td contenteditable="true" style="color:#15803d;" oninput="activeCollabs[${i}].lmp=this.innerText; saveData()">${c.lmp}</td>
+                    <td contenteditable="true" style="color:#ea580c;" oninput="activeCollabs[${i}].pro=this.innerText; saveData()">${c.pro}</td>
+                    <td contenteditable="true" style="color:#1e3a5f;" oninput="activeCollabs[${i}].rtf=this.innerText; saveData()">${c.rtf || '0'}</td>
+                </tr>`).join('');
+        }
+
+        function toggleBadge() {
+            const b = document.getElementById('main-badge');
+            const isUp = b.classList.contains('badge-up');
+            b.className = isUp ? "ca-badge badge-down" : "ca-badge badge-up";
+            document.getElementById('badge-icon').className = isUp ? "fas fa-arrow-down" : "fas fa-arrow-up";
+        }
+        function openProductModal(idx) { currentSlotIdx = idx; showModal("Famille", productDB, (n) => { slots[currentSlotIdx].name = n; renderLists(); saveData(); closeModal(); }); }
+        function openCollabModal() { showModal("Membre", namesDB, (n) => { activeCollabs.push({name: n.toUpperCase(), lm: "0", lmp: "0", pro: "0", rtf: "0"}); renderLists(); saveData(); closeModal(); }); }
+        function showModal(t, l, cb) { 
+            document.getElementById('modal-title').innerText = t; 
+            document.getElementById('modal').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('db-list').innerHTML = l.map(item => `<div class="db-item" onclick="window.currentCB('${item.replace(/'/g, "\\'")}')">${item}</div>`).join('');
+            window.currentCB = cb;
+        }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
+        function removeLastCollab() { activeCollabs.pop(); renderLists(); saveData(); }
+        function resetMemory() { if(confirm("Voulez-vous écraser les changements actuels par ceux définis en haut du code ?")) { localStorage.removeItem('briefDataV5'); resetToDefault(); } }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
